@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Master</title>
+    <style>
+        body {
+            background: url(typing.jpg) no-repeat center center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: rgb(83, 77, 77);
+            overflow: hidden;
+        }
+        .game-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8); 
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #37474f;
+            margin-bottom: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .text-display {
+            font-size: 18px;
+            padding: 20px;
+            background: #eceff1;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: justify;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            height: 200px;
+            overflow-y: auto;
+        }
+        .input-box {
+            width: 100%;
+            max-width: 500px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .timer {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #e73e3e;
+        }
+        .result {
+            font-size: 20px;
+            margin-top: 20px;
+            color: rgb(0, 53, 213);
+        }
+        .start-button, .submit-button {
+            padding: 12px 24px;
+            font-size: 18px;
+            background-color: #00d2d3;
+            border: 2px solid #00d2d3;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        .start-button:hover, .submit-button:hover {
+            background-color: white;
+            color: #00d2d3;
+            box-shadow: 0 0 15px rgba(0, 210, 211, 0.8);
+        }
+        .correct {
+            color: rgb(7, 217, 7);
+        }
+        .incorrect {
+            color: red;
+        }
+        #progress-bar-container {
+            width: 100%;
+            background-color: #ddd;
+            height: 20px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        #progress-bar {
+            height: 100%;
+            width: 100%;
+            background-color: #00d2d3;
+            border-radius: 10px;
+            transition: width 0.3s linear;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Typing Master⌨</h1>
+        <div id="text-display" class="text-display">Click "Start" to test your Speed...</div>
+        <input type="text" id="input-box" class="input-box" placeholder="Type here..." disabled />
+        <button id="start-button" class="start-button">Start</button>
+        <button id="submit-button" class="start-button" disabled>Submit</button>
+        <div id="timer" class="timer">Time Left: 120 seconds</div>
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="result" class="result"></div>
+    </div>
+    <script>
+        const paragraphs = [
+            `Arijit Singh is an Indian playback singer known for his soulful voice and versatility across genres. He gained fame with the song "Tum Hi Ho" from the movie Aashiqui 2 in 2013. Arijit has won several awards, including two National Film Awards and seven Filmfare Awards. He is also the most-followed artist globally on Spotify.`,
+            `Harry Potter, the boy who lived, discovers on his eleventh birthday that he's a wizard and attends the magical Hogwarts School. There, he meets lifelong friends Hermione Granger and Ron Weasley, and together, they uncover the secrets of the wizarding world and battles the dark wizard Voldemort.`,
+            `Iron Man, also known as Tony Stark, is a genius billionaire inventor and philanthropist who dons a high-tech suit of armor. He uses his advanced technology to fight evil and protect the world. Stark's journey from a self-centered industrialist to a heroic Avenger is marked by courage and redemption.`,
+            `The Internet has revolutionized the way we communicate. From emails to video calls, staying connected is now easier than ever. However, it also comes with challenges like misinformation and cyber threats. It's crucial to stay informed and use technology wisely. Balance is the key to a healthy online presence. Embrace the good while being cautious about the risks.`
+        ];
+        let currentParagraph = "";
+        let startTime = 0;
+        let timerInterval;
+        let timeLeft = 120;
+        const textDisplay = document.getElementById("text-display");
+        const inputBox = document.getElementById("input-box");
+        const startButton = document.getElementById("start-button");
+        const submitButton = document.getElementById("submit-button");
+        const timer = document.getElementById("timer");
+        const progressBar = document.getElementById("progress-bar");
+        const result = document.getElementById("result");
+        function startGame() {
+            inputBox.value = "";
+            result.textContent = "";
+            inputBox.disabled = false;
+            submitButton.disabled = false;
+            inputBox.focus();
+            timeLeft = 120;
+            timer.textContent = `Time Left: ${timeLeft} seconds`;
+            progressBar.style.width = "100%";
+            currentParagraph = paragraphs[Math.floor(Math.random() * paragraphs.length)];
+            displayTextWithColors("");
+            startTime = new Date().getTime();
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+            inputBox.addEventListener("input", checkInput);
+        }
+        function updateTimer() {
+            timeLeft--;
+            timer.textContent = `Time Left: ${timeLeft} seconds`;
+
+            const progressPercentage = (timeLeft / 120) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                endGame();
+            }
+        }
+        function checkInput() {
+            const userInput = inputBox.value;
+            displayTextWithColors(userInput);
+            if (userInput === currentParagraph) {
+                clearInterval(timerInterval);
+                endGame();
+            }
+        }
+        function displayTextWithColors(userInput) {
+            let coloredText = "";
+            for (let i = 0; i < currentParagraph.length; i++) {
+                if (i < userInput.length) {
+                    if (userInput[i] === currentParagraph[i]) {
+                        coloredText += `<span class="correct">${currentParagraph[i]}</span>`;
+                    } else {
+                        coloredText += `<span class="incorrect">${currentParagraph[i]}</span>`;
+                    }
+                } else {
+                    coloredText += currentParagraph[i];
+                }
+            }
+            textDisplay.innerHTML = coloredText;
+        }
+        function endGame() {
+            const endTime = new Date().getTime();
+            const timeTaken = (endTime - startTime) / 1000;
+            const userInput = inputBox.value;
+            const wordsTyped = userInput.split(" ").filter(word => word !== "").length;
+            inputBox.disabled = true;
+            submitButton.disabled = true; 
+            if (userInput === currentParagraph) {
+                const speed = Math.round((wordsTyped / timeTaken) * 60);
+                result.textContent = `🎉 You completed the paragraph in ${timeTaken.toFixed(2)} seconds. Typing Speed: ${speed} WPM!`;
+            } else {
+                const speed = Math.round((wordsTyped / 120) * 60);
+                result.textContent = `⏳ Time's up! You typed ${wordsTyped} words. Typing Speed: ${speed} WPM.`;
+            }
+        }
+        submitButton.addEventListener("click", () => {
+            clearInterval(timerInterval); 
+            endGame();
+        });
+        startButton.addEventListener("click", startGame);
+    </script>
+</body>
+</html>
